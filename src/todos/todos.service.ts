@@ -13,13 +13,11 @@ export class TodosService {
 
   async create(dto: CreateTodoDto) {
     await this.userService.findOne(dto.authorId);
-
     const createTodo = await this.prisma.todos.create({
       data: {
         ...dto,
       },
     });
-
     return createTodo;
   }
 
@@ -29,11 +27,9 @@ export class TodosService {
         id: 'asc',
       },
     });
-
     if (!allTodos) {
       throw new NotFoundException('todos not found');
     }
-
     return allTodos;
   }
 
@@ -43,46 +39,32 @@ export class TodosService {
         id,
       },
     });
-
     if (!todos) {
       throw new NotFoundException(`todos with id ${id} not found`);
     }
-
     return todos;
   }
 
   async update(id: number, dto: UpdateTodoDto) {
-    const checkTodos = await this.findOne(id);
-
-    if (!checkTodos) {
-      throw new NotFoundException(`todos with id ${id} not found`);
-    }
-
+    await this.findOne(id);
     const updated = await this.prisma.todos.update({
       where: {
         id,
       },
       data: {
-        content: dto.content,
+        ...dto,
       },
     });
-
     return updated;
   }
 
   async remove(id: number) {
-    const checkTodos = await this.findOne(id);
-
-    if (!checkTodos) {
-      throw new NotFoundException(`todos with id ${id} not found`);
-    }
-
+    await this.findOne(id);
     const deleted = await this.prisma.todos.delete({
       where: {
         id,
       },
     });
-
     return deleted;
   }
 }
