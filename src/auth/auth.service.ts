@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
+import { AuthDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -11,20 +12,25 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, pin: string): Promise<any> {
+  async validateUser(dto: AuthDto): Promise<any> {
     const user = await this.prisma.user.findUnique({
       where: {
-        email,
+        email: dto.email,
       },
     });
-    if (user && user.email === email && (await compare(pin, user.pin))) {
+    if (
+      user &&
+      user.email === dto.email &&
+      (await compare(dto.pin, user.pin))
+    ) {
       const { pin, ...result } = user;
       return result;
     }
     throw new NotFoundException('email or pin is invalid');
   }
 
-  async login(user: any) {
+  async login(dto: AuthDto) {
+    const user = await this.validateUser(dto);
     const payload = {
       sub: user.id,
     };
