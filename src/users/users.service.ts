@@ -22,6 +22,7 @@ export class UsersService {
       data: {
         ...dto,
         pin: encryptedPin,
+        name: dto.name.toLowerCase(),
       },
     });
     const { pin, ...user } = newUser;
